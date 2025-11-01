@@ -135,10 +135,10 @@ func (m *Model) handleOptionsKeys(msg tea.KeyMsg) tea.Cmd {
 		switch string(msg.Runes) {
 		case "g", "G":
 			selected := m.getSelectedPackages()
-			commands := m.pkgManager.GetInstallCommands(selected)
-			if len(commands) > 0 {
+			command := m.pkgManager.GetInstallCommand(selected)
+			if command != "" {
 				m.quitWithCommands = true
-				m.commandsToPrint = commands
+				m.commandsToPrint = []string{command}
 				m.autoRun = false
 				return tea.Quit
 			} else {
@@ -150,10 +150,10 @@ func (m *Model) handleOptionsKeys(msg tea.KeyMsg) tea.Cmd {
 
 		case "d", "D":
 			selected := m.getSelectedPackages()
-			commands := m.pkgManager.GetInstallCommands(selected)
-			if len(commands) > 0 {
+			command := m.pkgManager.GetInstallCommand(selected)
+			if command != "" {
 				m.quitWithCommands = true
-				m.commandsToPrint = commands
+				m.commandsToPrint = []string{command}
 				m.autoRun = true
 
 				for _, pkg := range selected {
