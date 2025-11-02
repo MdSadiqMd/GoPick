@@ -3,7 +3,6 @@ package term
 import (
 	"fmt"
 	"os"
-	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
@@ -23,9 +22,9 @@ func InjectCommandToTTY(command string, pressEnter bool) error {
 	injectByte := func(b byte) error {
 		// Use ioctl TIOCSTI to stuff a byte into the terminal input buffer
 		// This makes it appear as if the user typed the byte at the prompt
-		_, _, errno := unix.Syscall(unix.SYS_IOCTL, fd, uintptr(unix.TIOCSTI), uintptr(unsafe.Pointer(&b)))
-		if errno != 0 {
-			return errno
+		err := unix.IoctlSetPointerInt(int(fd), unix.TIOCSTI, int(b))
+		if err != nil {
+			return err
 		}
 		return nil
 	}
