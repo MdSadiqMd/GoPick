@@ -11,6 +11,7 @@ import (
 	"github.com/MdSadiqMd/gopick/internal/config"
 	"github.com/MdSadiqMd/gopick/internal/history"
 	"github.com/MdSadiqMd/gopick/internal/packages"
+	"github.com/MdSadiqMd/gopick/internal/term"
 	"github.com/MdSadiqMd/gopick/internal/tui"
 )
 
@@ -50,22 +51,13 @@ func main() {
 	if m, ok := finalModel.(*tui.Model); ok {
 		if m.ShouldPrintCommands() {
 			commands := m.GetCommandsToPrint()
+			fullCmd := strings.Join(commands, " && ")
 
-			if m.ShouldAutoRun() {
-				fmt.Println("\n📦 Run this command to install packages:")
-				fmt.Println()
-				fullCmd := strings.Join(commands, " && ")
-				fmt.Println("  " + fullCmd)
-				fmt.Println()
-				fmt.Println("Copy and run the command above ☝️")
-			} else {
-				fmt.Println("\n📦 Installation Commands:")
-				fmt.Println()
-				for _, cmd := range commands {
-					fmt.Println("  " + cmd)
-				}
-				fmt.Println()
-				fmt.Println("Copy and run these commands in your terminal.")
+			// Inject the command into the terminal input buffer
+			if err := term.InjectCommandToTTY(fullCmd, m.ShouldAutoRun()); err != nil {
+				// Fallback if injection fails
+				fmt.Fprintln(os.Stderr, "warning: couldn't inject command into terminal; printing instead:")
+				fmt.Println(fullCmd)
 			}
 		}
 	}
